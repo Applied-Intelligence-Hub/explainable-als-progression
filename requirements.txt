@@ -1,0 +1,15 @@
+# The original analysis environment was not frozen; these are dependency names.
+numpy
+pandas
+scipy
+scikit-learn
+xgboost
+lightgbm
+optuna
+shap
+lime
+matplotlib
+seaborn
+joblib
+jupyter
+nbconvert

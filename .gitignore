@@ -216,3 +216,26 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# PRO-ACT source records and patient-level derivatives
+01_data/raw/*
+!01_data/raw/.gitkeep
+01_data/interim/*
+!01_data/interim/.gitkeep
+01_data/processed/*
+!01_data/processed/.gitkeep
+
+# Generated analyses, participant reports and fitted models stay local
+04_outputs/*
+!04_outputs/.gitkeep
+models/*
+!models/.gitkeep
+overleaf/
+*.csv
+*.npy
+*.npz
+*.joblib
+*.pkl
+*.pickle
+Thumbs.db
+.DS_Store
