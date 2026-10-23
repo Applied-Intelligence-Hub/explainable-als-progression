@@ -1,15 +1,14 @@
-# The original analysis environment was not frozen; these are dependency names.
-numpy
-pandas
-scipy
-scikit-learn
-xgboost
-lightgbm
-optuna
-shap
-lime
-matplotlib
-seaborn
-joblib
-jupyter
-nbconvert
+# Core analysis dependencies verified locally on 23 October 2026 (Python 3.12.10).
+# This is not a historical lock captured when every original experiment ran.
+numpy==2.4.2
+pandas==3.0.1
+scipy==1.17.1
+scikit-learn==1.8.0
+xgboost==3.2.0
+lightgbm==4.6.0
+optuna==4.7.0
+shap==0.50.0
+lime==0.2.0.1
+matplotlib==3.10.8
+seaborn==0.13.2
+joblib==1.5.3

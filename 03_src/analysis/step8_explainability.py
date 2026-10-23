@@ -549,7 +549,11 @@ def run_lr_coefficients(pipe_lr):
     }).sort_values("abs_coefficient", ascending=False).reset_index(drop=True)
 
     coef_df.to_csv(os.path.join(OUT_TAB, "lr_coefficients.csv"), index=False)
+    plot_lr_coefficients(coef_df)
 
+
+def plot_lr_coefficients(coef_df):
+    """Render saved coefficients without fitting the Logistic Regression again."""
     # Plot top coefficients
     top = coef_df.head(N_TOP_FEATURES).copy()
     top = top.sort_values("abs_coefficient", ascending=True)
@@ -569,6 +573,8 @@ def run_lr_coefficients(pipe_lr):
         ax.text(val + offset, bar.get_y() + bar.get_height() / 2,
                 f"{val:+.3f}", va="center", ha=ha, fontsize=8, color=FIGURE_INK)
     ax.axvline(0, color=FIGURE_INK, lw=0.8, ls="--")
+    ax.set_xlim(min(-0.35, float(top["coefficient"].min()) - 0.07),
+                max(0.15, float(top["coefficient"].max()) + 0.035))
     ax.set_xlabel("Model coefficient", fontsize=11)
     ax.set_title("Logistic Regression Coefficients — Top Features (6-month)",
                  fontsize=12, fontweight="bold")

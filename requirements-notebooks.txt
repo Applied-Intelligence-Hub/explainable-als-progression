@@ -1,0 +1,4 @@
+# Optional notebook-interface tools; not part of the verified script runtime.
+# Install after requirements.txt only if notebook execution/export is needed.
+jupyter
+nbconvert

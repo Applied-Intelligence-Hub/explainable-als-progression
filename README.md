@@ -69,7 +69,7 @@ requirements.txt     Python dependencies
 
 ## Installation
 
-Use Python 3.10 or later. From the repository root:
+Use Python 3.12 (verified locally with 3.12.10). From the repository root:
 
 ```bash
 python -m venv .venv
@@ -79,7 +79,9 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-The original environment was not archived as a lock file. Dependencies are therefore listed without invented version pins, and package or platform differences may affect regenerated results.
+The original environment was not archived as a historical lock. Core dependencies in `requirements.txt` are now pinned to the Python 3.12.10 environment inspected on 23 October 2026. `requirements-verified.txt` records its full installed-package inventory, including transitive and development dependencies. This snapshot does not establish the environment at the time of every original run, or guarantee bitwise agreement across platforms. Exact partition reproduction also requires the original row order and verification against the split manifests described below.
+
+The scripts do not require a notebook interface. For optional notebook execution/export, install `requirements-notebooks.txt` after the core requirements; those interface tools were not part of the verified runtime snapshot.
 
 ## Data preparation
 
@@ -136,6 +138,36 @@ python 03_src/analysis/generate_3m_vs_6m_visuals.py
 The `training/` and `report/` scripts support the dissertation's reporting prototype. Those training scripts fit the complete cohort and must not be used to produce the held-out evaluation. The primary evaluation and explainability scripts fit their models on development patients only.
 
 Some figure scripts also create an `overleaf/` directory with duplicate figure exports. A LaTeX project is not required to run the analyses.
+
+## Reviewer follow-up checks
+
+After generating the original datasets, split manifests, tuning histories and
+held-out predictions, run:
+
+```bash
+python 03_src/analysis/reviewer_followup.py
+```
+
+This supplementary script reads the locally retained predictions from Step 8. It
+checks the test identifiers, labels and confusion matrix before computing baseline
+and selection summaries, subgroup recall intervals, decision-curve intervals,
+scaled Brier score, descriptive calibration diagnostics, encoding summaries and
+the Study I trial-history audit. It writes aggregate outputs to
+`04_outputs/reviewer_followup/` and never refits a predictive model. Bootstrap
+intervals use 2,000 resamples by default (`--bootstrap`). `--project-root` and
+`--output` can point to another authorised local study directory and output path.
+The assertions intentionally check the dissertation's cohorts and original split;
+they should not be weakened to make a different data extract appear identical.
+
+The threshold plot now leaves precision undefined when no positive prediction is
+made; the selected thresholds are unchanged. The LR coefficient plot has extra
+space for negative value labels. These are display corrections, not model changes.
+
+Patient separation does not establish independence between source trials. The
+original five-fold design was not replaced with repeated stratified CV. Race
+indicators retain their original numeric median imputation, and LIME's original
+perturbation scheme was not replaced with categorical-aware explanations. These
+limitations remain relevant when interpreting the results.
 
 ## Data use and limitations
 

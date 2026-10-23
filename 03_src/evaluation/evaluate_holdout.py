@@ -305,7 +305,7 @@ def oof_threshold_sweep(model_key, params, balanced, X_dev, y_dev, groups_dev):
 
     for t in thresholds:
         y_pred = (oof_proba >= t).astype(int)
-        prec = precision_score(y_dev, y_pred, zero_division=0)
+        prec = precision_score(y_dev, y_pred, zero_division=np.nan)
         rec  = recall_score(y_dev, y_pred, zero_division=0)
         # Youden's J: TPR - FPR = recall - (FP / (FP + TN))
         fp = int(((y_pred == 1) & (y_dev == 0)).sum())
