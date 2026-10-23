@@ -18,6 +18,8 @@ Analysis:
 """
 
 from __future__ import annotations
+import argparse
+import json
 import os, time
 import numpy as np
 import pandas as pd
@@ -40,15 +42,21 @@ apply_study1_style()
 
 # ── paths ──
 ROOT       = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-FIG_DIR    = os.path.join(ROOT, "04_outputs", "figures", "step5_tuning")
-TAB_DIR    = os.path.join(ROOT, "04_outputs", "tables", "step5_tuning")
-OVERLEAF_FIG = os.path.join(ROOT, "overleaf", "images", "figures")
-OVERLEAF_TAB = os.path.join(ROOT, "overleaf", "images", "tables")
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--output-root", help="Write generated artefacts to a separate directory.")
+args = parser.parse_args()
+OUTPUT_ROOT = os.path.abspath(args.output_root) if args.output_root else ROOT
+SOURCE_TAB_DIR = os.path.join(ROOT, "04_outputs", "tables", "step5_tuning")
+FIG_DIR    = os.path.join(OUTPUT_ROOT, "04_outputs", "figures", "step5_tuning")
+TAB_DIR    = os.path.join(OUTPUT_ROOT, "04_outputs", "tables", "step5_tuning")
+OVERLEAF_FIG = os.path.join(OUTPUT_ROOT, "overleaf", "images", "figures")
+OVERLEAF_TAB = os.path.join(OUTPUT_ROOT, "overleaf", "images", "tables")
 os.makedirs(FIG_DIR, exist_ok=True)
+os.makedirs(TAB_DIR, exist_ok=True)
 os.makedirs(OVERLEAF_FIG, exist_ok=True)
 os.makedirs(OVERLEAF_TAB, exist_ok=True)
 
-SUMMARY_6M        = os.path.join(TAB_DIR, "step5_tuning_summary_6m.csv")
+SUMMARY_6M        = os.path.join(SOURCE_TAB_DIR, "step5_tuning_summary_6m.csv")
 FVC_MISSINGNESS   = os.path.join(ROOT, "04_outputs", "tables", "step4", "step4_fvc_missingness_analysis.csv")
 
 t_start = time.time()
@@ -57,6 +65,10 @@ t_start = time.time()
 # 1.  Load tuning summary
 # ════════════════════════════════════════════════════════════
 df = pd.read_csv(SUMMARY_6M)
+# Avoid double rounding of the SVM score stored as 0.4255 in the summary CSV.
+with open(os.path.join(SOURCE_TAB_DIR, "SVM_balanced_6m_best.json"), encoding="utf-8") as f:
+    svm_balanced = json.load(f)
+df.loc[(df["model"] == "SVM") & (df["mode"] == "balanced"), "pr_auc_mean"] = svm_balanced["best_value"]
 df["label"] = df["model"] + "\n" + df["mode"]
 df = df.sort_values("pr_auc_mean", ascending=True).reset_index(drop=True)  # low→high for horizontal bar
 
@@ -73,7 +85,7 @@ for bar, mode, colour in zip(bars, df["mode"], colors):
     if mode == "balanced":
         apply_balanced_hatch(bar, colour)
 ax.set_xlabel("PR-AUC (mean ± std, 5-fold GroupKFold)", fontsize=11)
-ax.set_title("Optuna-Tuned Models — 6-Month Horizon (DEV)", fontsize=13, fontweight="bold")
+ax.set_title("Optuna-Tuned Models — 6-Month Horizon (DEV, n=1113)", fontsize=13, fontweight="bold")
 ax.axvline(x=df["pr_auc_mean"].max(), ls="--", color=FIGURE_INK, alpha=0.7, lw=0.8)
 for bar, val, err in zip(bars, df["pr_auc_mean"], df["pr_auc_std"]):
     ax.text(
