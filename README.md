@@ -1,7 +1,5 @@
 # Explainable ALS Functional Progression
 
-Code for **Study I** of Ivo Nunes Camacho's MSc dissertation, *Explainable and Reproducible Machine Learning for ALS Prognosis: Functional Progression Classification and Survival Prediction*, supervised by Maryam Abbasi and Pedro Martins at the Polytechnic University of Santarem.
-
 The study classifies rapid functional decline at three and six months using PRO-ACT clinical-trial records. Baseline predictors are separated in time from the follow-up observations used to estimate ALSFRS-R slopes. Model development also separates patients, estimates target cutoffs within training data, and selects a decision threshold from development predictions.
 
 ![Study I pipeline](assets/study1_pipeline.png)
@@ -143,8 +141,6 @@ This repository distributes code and selected published figures. Source data, pa
 
 The study is secondary analysis of de-identified trial records, with no new participant recruitment or clinical data collection. Its results provide internal validation in PRO-ACT. External and prospective evaluation, calibration and an explicit clinical decision objective are needed before clinical use.
 
-## Related work and licence
-
-The source snapshot comes from the [dissertation repository](https://github.com/NotAnnieMore/ALSThesis) at commit `6e54223`, with standalone preparation helpers and path corrections. The companion survival study is available in [als-survival-imbalance-ml](https://github.com/Applied-Intelligence-Hub/als-survival-imbalance-ml).
+## licence
 
 The repository retains the GNU GPL v3 [licence](LICENSE) supplied by Applied Intelligence Hub.
