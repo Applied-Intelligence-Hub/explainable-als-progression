@@ -17,7 +17,8 @@ The study classifies rapid functional decline at three and six months using PRO-
 | Classifiers | KNN, Decision Tree, Random Forest, SVM, Logistic Regression, LightGBM, XGBoost |
 | Imbalance conditions | Unbalanced and balanced modes where supported; 13 configurations at six months |
 | Model selection | Optuna optimisation of cross-validated PR-AUC (average precision) |
-| Validation | Patient-level 80/20 split and grouped five-fold cross-validation within development data |
+| Primary validation | Patient-level 80/20 split and grouped five-fold cross-validation within development data |
+| Complementary validation | Fixed-parameter stratified five-fold CV repeated three times, DEV only |
 | Explanations | SHAP, LIME, and logistic-regression coefficients |
 
 Later clinical records do not enter the baseline feature matrix. During cross-validation, the 30th-percentile slope cutoff is estimated from each training fold. Held-out labels use the development-partition cutoff. Global labels are used only to stratify the initial split, not as the modelling targets. Imputation and any feature scaling are fitted within the training data.
@@ -59,7 +60,7 @@ Baseline ALSFRS-R and FVC had the largest global SHAP contributions. FVC in litr
   analysis/          Explainability, figures and supplementary analyses
   training/          Full-cohort prototype model fitting
   report/            Prototype report and synthetic-profile generators
-04_outputs/          Generated tables and figures, stored locally
+04_outputs/          Published selected parameters; other generated outputs stay local
 models/              Locally generated fitted-model artefacts
 assets/              Selected published figures used in this README
 requirements.txt     Python dependencies
@@ -120,7 +121,7 @@ The tuning script accepts `--help`, `--models`, `--trials` and `--unbalanced-onl
 
 ## Supplementary analyses
 
-After preparing the data and completing tuning:
+After preparing the data and obtaining the selected parameters:
 
 ```bash
 python 03_src/data/analyze_fvc_missingness.py
@@ -161,11 +162,76 @@ The threshold plot now leaves precision undefined when no positive prediction is
 made; the selected thresholds are unchanged. The LR coefficient plot has extra
 space for negative value labels. These are display corrections, not model changes.
 
-Patient separation does not establish independence between source trials. The
-original five-fold design was not replaced with repeated stratified CV. Race
-indicators retain their original numeric median imputation, and LIME's original
-perturbation scheme was not replaced with categorical-aware explanations. These
-limitations remain relevant when interpreting the results.
+### Fixed-parameter validation and encoding sensitivity
+
+The primary model, test partition and threshold remain unchanged. Additional
+checks use the saved configurations without another Optuna search:
+
+```bash
+python 03_src/analysis/repeated_stratified_validation.py
+python 03_src/analysis/race_encoding_sensitivity.py
+python 03_src/analysis/review_lime_categorical.py
+python 03_src/analysis/test_supplementary_revision.py
+```
+
+The first command uses the original DEV manifests, with five stratified folds
+repeated three times (seed 42). Provisional DEV labels balance fold allocation;
+each training fold still supplies its own target cutoff and fitted preprocessing.
+It evaluates 13 six-month and eight three-month saved configurations, giving 315
+fits, without accessing TEST. Balanced RF leads the six-month check at AP 0.422,
+while the original selected XGBoost configuration gives 0.414. This assesses
+partition sensitivity of selected parameters, not nested validation or a reason
+to select a replacement after inspecting TEST. Overlapping folds are not used
+as independent observations in new significance tests.
+
+The 21 selected six-/three-month parameter JSONs are included under
+`04_outputs/tables/step5_tuning/`; they contain configuration and aggregate scores,
+not patient records. The fixed-parameter commands can reuse them without running
+Optuna again. Reproducing the original fold assignments still requires authorised
+data and the original local split manifests. Do not overwrite the published
+reference configurations with a new search and then call it the same sensitivity.
+
+Run the race command after the repeated-validation command. It adds 90 six-month
+DEV fits for fixed XGBoost-unbalanced and LR-balanced configurations:
+
+| Configuration | Numeric median AP | Recorded states AP | Race omitted AP |
+| --- | ---: | ---: | ---: |
+| XGBoost unbalanced | 0.414495 | 0.415943 | 0.417128 |
+| LR balanced | 0.397072 | 0.397376 | 0.397381 |
+
+Recorded states distinguish explicit zero, explicit one and an unrecorded field,
+without forcing a mutually exclusive race category. The numeric reference must
+reproduce the repeated-validation scores. No TEST evaluation or threshold
+selection is performed. Small changes in ranking do not validate the original
+median coding, establish fairness or make coefficients comparable across scales.
+
+### Categorical-aware LIME
+
+The current Step 8 and the focused `review_lime_categorical.py` script sample
+one-hot groups as original categorical variables and retain observed binary or
+discrete categories. The focused script checks the stored probabilities and
+four case assignments before regenerating only LIME and grouped SHAP/LIME
+comparisons. SHAP contributions are summed within original variables before
+absolute ranking. The primary test AP remains 0.456462 and threshold 0.21.
+
+Categorical validity is not local fidelity: weighted surrogate R2 ranges from
+0.198 to 0.456, and the false-negative surrogate crosses the selected threshold.
+Sampling variables separately can still produce implausible clinical combinations.
+The focused script requires the original local Step 8 prediction/profile files;
+these private artefacts are not included in this repository.
+
+New aggregate scores and warnings are written to
+`04_outputs/reviewer_followup/revised_analyses/`. Fold membership and local case
+weights stay under ignored `01_data/interim/`; prediction/profile files also
+remain ignored. The tests use synthetic fixtures and do not retrain the study
+models. Selected aggregate results are in
+[`assets/reviewer_followup/results.json`](assets/reviewer_followup/results.json).
+
+Patient separation does not establish source-trial independence. No reliable
+trial-membership variable was reconstructed, so no leave-trial-out validation is
+claimed. The original primary race encoding is retained with its limitation
+explicit; the sensitivity analyses do not remove trial-recording effects or
+constitute a clean-environment reproduction.
 
 ## Data use and limitations
 

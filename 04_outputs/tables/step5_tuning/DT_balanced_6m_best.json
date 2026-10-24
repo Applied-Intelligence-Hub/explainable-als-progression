@@ -1,0 +1,42 @@
+{
+  "model": "DecisionTree",
+  "mode": "balanced",
+  "horizon": "6m",
+  "metric_optimized": "PR_AUC",
+  "best_value": 0.4040839196580876,
+  "best_params": {
+    "max_depth": 7,
+    "min_samples_split": 19,
+    "min_samples_leaf": 12,
+    "criterion": "entropy"
+  },
+  "full_params": {
+    "max_depth": 7,
+    "min_samples_split": 19,
+    "min_samples_leaf": 12,
+    "criterion": "entropy",
+    "random_state": 42
+  },
+  "n_trials": 60,
+  "n_splits": 5,
+  "rapid_frac": 0.3,
+  "final_metrics": {
+    "pr_auc": {
+      "mean": 0.4041,
+      "std": 0.0541
+    },
+    "roc_auc": {
+      "mean": 0.6064,
+      "std": 0.0248
+    },
+    "f1": {
+      "mean": 0.4336,
+      "std": 0.0322
+    },
+    "f2": {
+      "mean": 0.5142,
+      "std": 0.0606
+    }
+  },
+  "created_utc": "2026-03-11T18:08:44+00:00"
+}

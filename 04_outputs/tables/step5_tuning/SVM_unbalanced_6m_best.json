@@ -1,0 +1,41 @@
+{
+  "model": "SVM",
+  "mode": "unbalanced",
+  "horizon": "6m",
+  "metric_optimized": "PR_AUC",
+  "best_value": 0.389220975801703,
+  "best_params": {
+    "C": 69.92524768815026,
+    "kernel": "rbf",
+    "gamma": 0.0031263003585627527
+  },
+  "full_params": {
+    "C": 69.92524768815026,
+    "kernel": "rbf",
+    "probability": true,
+    "random_state": 42,
+    "gamma": 0.0031263003585627527
+  },
+  "n_trials": 60,
+  "n_splits": 5,
+  "rapid_frac": 0.3,
+  "final_metrics": {
+    "pr_auc": {
+      "mean": 0.3892,
+      "std": 0.0569
+    },
+    "roc_auc": {
+      "mean": 0.5943,
+      "std": 0.0188
+    },
+    "f1": {
+      "mean": 0.032,
+      "std": 0.03
+    },
+    "f2": {
+      "mean": 0.0212,
+      "std": 0.0198
+    }
+  },
+  "created_utc": "2026-03-11T18:30:17+00:00"
+}

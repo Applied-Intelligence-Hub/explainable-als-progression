@@ -1,0 +1,39 @@
+{
+  "model": "KNeighbors",
+  "mode": "unbalanced",
+  "horizon": "6m",
+  "metric_optimized": "PR_AUC",
+  "best_value": 0.38703260003280815,
+  "best_params": {
+    "n_neighbors": 51,
+    "weights": "distance",
+    "metric": "euclidean"
+  },
+  "full_params": {
+    "n_neighbors": 51,
+    "weights": "distance",
+    "metric": "euclidean"
+  },
+  "n_trials": 60,
+  "n_splits": 5,
+  "rapid_frac": 0.3,
+  "final_metrics": {
+    "pr_auc": {
+      "mean": 0.387,
+      "std": 0.0546
+    },
+    "roc_auc": {
+      "mean": 0.5872,
+      "std": 0.0275
+    },
+    "f1": {
+      "mean": 0.0349,
+      "std": 0.013
+    },
+    "f2": {
+      "mean": 0.0224,
+      "std": 0.0083
+    }
+  },
+  "created_utc": "2026-03-11T18:08:27+00:00"
+}

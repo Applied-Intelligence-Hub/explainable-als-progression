@@ -1,0 +1,40 @@
+{
+  "model": "LogisticRegression",
+  "mode": "unbalanced",
+  "horizon": "3m",
+  "metric_optimized": "PR_AUC",
+  "best_value": 0.3947307454060035,
+  "best_params": {
+    "C": 0.05258720831730129,
+    "penalty": "l1"
+  },
+  "full_params": {
+    "C": 0.05258720831730129,
+    "penalty": "l1",
+    "solver": "liblinear",
+    "max_iter": 3000,
+    "random_state": 42
+  },
+  "n_trials": 60,
+  "n_splits": 5,
+  "rapid_frac": 0.3,
+  "final_metrics": {
+    "pr_auc": {
+      "mean": 0.3947,
+      "std": 0.0321
+    },
+    "roc_auc": {
+      "mean": 0.6272,
+      "std": 0.0282
+    },
+    "f1": {
+      "mean": 0.0517,
+      "std": 0.0204
+    },
+    "f2": {
+      "mean": 0.0339,
+      "std": 0.0133
+    }
+  },
+  "created_utc": "2026-03-11T19:43:48+00:00"
+}

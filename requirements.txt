@@ -12,3 +12,4 @@ lime==0.2.0.1
 matplotlib==3.10.8
 seaborn==0.13.2
 joblib==1.5.3
+threadpoolctl==3.6.0

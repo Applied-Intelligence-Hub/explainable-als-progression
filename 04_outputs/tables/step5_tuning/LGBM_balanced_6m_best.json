@@ -1,0 +1,54 @@
+{
+  "model": "LightGBM",
+  "mode": "balanced",
+  "horizon": "6m",
+  "metric_optimized": "PR_AUC",
+  "best_value": 0.4184096027066473,
+  "best_params": {
+    "n_estimators": 700,
+    "learning_rate": 0.010119612867685021,
+    "num_leaves": 117,
+    "max_depth": 2,
+    "min_child_samples": 44,
+    "subsample": 0.6998827066566473,
+    "colsample_bytree": 0.8219924622202696,
+    "reg_lambda": 0.7608603647611047,
+    "reg_alpha": 2.2444756742453316e-06
+  },
+  "full_params": {
+    "n_estimators": 700,
+    "learning_rate": 0.010119612867685021,
+    "num_leaves": 117,
+    "max_depth": 2,
+    "min_child_samples": 44,
+    "subsample": 0.6998827066566473,
+    "colsample_bytree": 0.8219924622202696,
+    "reg_lambda": 0.7608603647611047,
+    "reg_alpha": 2.2444756742453316e-06,
+    "random_state": 42,
+    "n_jobs": -1,
+    "verbose": -1
+  },
+  "n_trials": 60,
+  "n_splits": 5,
+  "rapid_frac": 0.3,
+  "final_metrics": {
+    "pr_auc": {
+      "mean": 0.4184,
+      "std": 0.0359
+    },
+    "roc_auc": {
+      "mean": 0.6148,
+      "std": 0.0121
+    },
+    "f1": {
+      "mean": 0.4434,
+      "std": 0.0319
+    },
+    "f2": {
+      "mean": 0.4987,
+      "std": 0.0428
+    }
+  },
+  "created_utc": "2026-03-11T18:37:09+00:00"
+}

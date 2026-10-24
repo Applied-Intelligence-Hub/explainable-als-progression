@@ -1,0 +1,45 @@
+{
+  "model": "RandomForest",
+  "mode": "unbalanced",
+  "horizon": "6m",
+  "metric_optimized": "PR_AUC",
+  "best_value": 0.4310267596320987,
+  "best_params": {
+    "n_estimators": 200,
+    "max_depth": 9,
+    "min_samples_split": 24,
+    "min_samples_leaf": 12,
+    "max_features": "sqrt"
+  },
+  "full_params": {
+    "n_estimators": 200,
+    "max_depth": 9,
+    "min_samples_split": 24,
+    "min_samples_leaf": 12,
+    "max_features": "sqrt",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "n_trials": 60,
+  "n_splits": 5,
+  "rapid_frac": 0.3,
+  "final_metrics": {
+    "pr_auc": {
+      "mean": 0.431,
+      "std": 0.0423
+    },
+    "roc_auc": {
+      "mean": 0.6101,
+      "std": 0.0315
+    },
+    "f1": {
+      "mean": 0.023,
+      "std": 0.0208
+    },
+    "f2": {
+      "mean": 0.0147,
+      "std": 0.0134
+    }
+  },
+  "created_utc": "2026-03-11T18:12:19+00:00"
+}

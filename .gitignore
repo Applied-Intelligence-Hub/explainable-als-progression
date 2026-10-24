@@ -239,3 +239,10 @@ overleaf/
 *.pickle
 Thumbs.db
 .DS_Store
+
+# Public selected hyperparameters contain no participant-level records.
+!04_outputs/tables/
+04_outputs/tables/*
+!04_outputs/tables/step5_tuning/
+04_outputs/tables/step5_tuning/*
+!04_outputs/tables/step5_tuning/*_best.json

@@ -51,7 +51,7 @@ from matplotlib.colors import to_rgba
 
 import shap
 import sklearn
-from lime.lime_tabular import LimeTabularExplainer
+from lime_categorical import CategoricalView, build_explainer
 
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -417,9 +417,8 @@ def run_shap(pipe, X_test, feat_cols, case_indices, subject_ids):
 def run_lime(pipe, X_test, X_dev, case_indices, transformed_names, subject_ids):
     """Generate LIME explanations for the same 4 case-study patients.
 
-    LIME requires numeric input, so we operate on the preprocessed
-    (imputed + encoded) feature space and wrap only the classifier
-    for predictions.
+    Categorical groups are sampled as single variables and reconstructed
+    exactly in the classifier's preprocessed input space.
     """
     print("\n-- LIME analysis --")
 
@@ -435,25 +434,22 @@ def run_lime(pipe, X_test, X_dev, case_indices, transformed_names, subject_ids):
     if not isinstance(X_test_proc, np.ndarray):
         X_test_proc = X_test_proc.toarray()
 
-    readable_names = [readable(f) for f in transformed_names]
+    view = CategoricalView(preproc, X_dev_proc)
+    encoded_test = view.encode(X_test_proc)
+    for matrix in [X_dev_proc, X_test_proc]:
+        np.testing.assert_array_equal(view.decode(view.encode(matrix)), matrix)
 
     # Predict wrapper — clf expects already-transformed data
     def predict_fn(X):
-        return clf.predict_proba(X)
+        return clf.predict_proba(view.decode(X))
 
-    explainer = LimeTabularExplainer(
-        training_data=X_dev_proc,
-        feature_names=readable_names,
-        class_names=["Slow", "Rapid"],
-        mode="classification",
-        random_state=SEED,
-        discretize_continuous=True,
-    )
+    explainer = build_explainer(view, X_dev_proc, readable, seed=SEED)
 
     lime_rankings = {}
+    fidelity = []
 
     for label, idx in case_indices.items():
-        instance = X_test_proc[idx]
+        instance = encoded_test[idx]
 
         explanation = explainer.explain_instance(
             instance,
@@ -466,39 +462,46 @@ def run_lime(pipe, X_test, X_dev, case_indices, transformed_names, subject_ids):
         # Get the explanation for the positive class (Rapid = 1)
         exp_map = explanation.as_map()[1]
         lime_rankings[label] = [
-            transformed_names[feature_idx]
+            view.names[feature_idx]
             for feature_idx, _ in exp_map[:N_TOP_FEATURES]
         ]
+        model_probability = float(clf.predict_proba(X_test_proc[[idx]])[0, 1])
+        fidelity.append({"case": label, "local_weighted_r2": explanation.score,
+                         "model_probability": model_probability,
+                         "surrogate_probability": float(explanation.local_pred[0]),
+                         "absolute_probability_error": float(abs(explanation.local_pred[0] - model_probability))})
 
         # Generate LIME figure
         fig = explanation.as_pyplot_figure(label=1)
         recolour_directional_bars(fig)
         fig.set_size_inches(9, 6)
-        subject_id = int(subject_ids.iloc[idx])
-        fig.suptitle(f"LIME Explanation — {label} (Subject ID {subject_id})",
-                     fontsize=11, fontweight="bold", y=1.02)
+        fig.suptitle(f"Categorical-aware LIME: {label} case", fontsize=11, fontweight="bold")
         fig.tight_layout()
         save_fig(fig, f"lime_local_{label}")
 
-    return lime_rankings
+    pd.DataFrame(fidelity).to_csv(os.path.join(OUT_TAB, "lime_local_fidelity.csv"), index=False)
+    return lime_rankings, view
 
 
 # ─────────────────────────────────────────────────────────────
 # Concordance: SHAP vs LIME
 # ─────────────────────────────────────────────────────────────
 def concordance_table(lime_rankings, case_indices, shap_values,
-                      transformed_names, top_k=10):
+                      transformed_names, top_k=10, feature_view=None):
     """Compare local top-K feature rankings from SHAP and LIME."""
     print("\n-- SHAP vs LIME concordance --")
 
     rows = []
+    comparison_values = (shap_values.values if feature_view is None
+                         else feature_view.aggregate_shap(shap_values.values))
+    comparison_names = transformed_names if feature_view is None else feature_view.names
     for label, idx in case_indices.items():
         if label not in lime_rankings:
             continue
 
-        local_abs = np.abs(shap_values.values[idx])
+        local_abs = np.abs(comparison_values[idx])
         shap_indices = np.argsort(local_abs)[::-1][:top_k]
-        shap_features = [transformed_names[i] for i in shap_indices]
+        shap_features = [comparison_names[i] for i in shap_indices]
         lime_features = lime_rankings[label][:top_k]
         overlap = set(shap_features) & set(lime_features)
 
@@ -672,13 +675,14 @@ def main():
         pipe_xgb, X_test, feat_cols, case_indices, ids_test)
 
     # ── LIME ──
-    lime_rankings = run_lime(
+    lime_rankings, lime_view = run_lime(
         pipe_xgb, X_test, X_dev, case_indices, transformed_names, ids_test
     )
 
     # ── Concordance ──
     concordance_table(
-        lime_rankings, case_indices, shap_values, transformed_names
+        lime_rankings, case_indices, shap_values, transformed_names,
+        feature_view=lime_view
     )
 
     # ── LR coefficients ──
